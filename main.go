@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"hello-web/pb_service"
 	"log"
+	"time"
 )
 
 func main() {
@@ -13,10 +14,14 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 	service := pb_service.NewHelloServiceClient(conn)
-	response, err := service.SayHello(context.Background(), &pb_service.HelloRequest{Name: "husky"})
-	if err != nil {
-		log.Fatalf("%v", err)
+	for i := 0; i < 100; i++ {
+		beginTime := time.Now()
+		response, err := service.SayHello(context.Background(), &pb_service.HelloRequest{Name: "husky"})
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		endTime := time.Now()
+		log.Printf("请求时长:%v/微妙, 响应消息:%v", endTime.Sub(beginTime).Microseconds(), response.GetMessage())
 	}
-	log.Println(response.GetMessage())
 	defer conn.Close()
 }
